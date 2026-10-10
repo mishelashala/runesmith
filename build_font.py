@@ -1,4 +1,4 @@
-"""Build original geometric rune outlines; no ligature substitutions."""
+"""Build original continuous pen-path rune outlines; no ligature substitutions."""
 from fontTools.fontBuilder import FontBuilder
 from fontTools.pens.ttGlyphPen import TTGlyphPen
 from pathlib import Path
@@ -43,36 +43,22 @@ patterns={
 'ᛥ':[S,((100,530),(300,680)),((300,680),(500,530)),((100,270),(300,420)),((300,420),(500,270))],
 }
 def glyph(lines,weight=60):
+ """Expand a connected pen path once, with round caps and joins, then emit its unified boundary."""
+ from shapely.geometry import LineString
+ from shapely.ops import unary_union, linemerge
+ from shapely.geometry.polygon import orient
  p=TTGlyphPen(None)
- for a,b in lines:
-  dx,dy=b[0]-a[0],b[1]-a[1]; length=math.hypot(dx,dy); nx,ny=-dy/length*weight/2,dx/length*weight/2
-  pts=[(a[0]-50+nx,a[1]+ny),(b[0]-50+nx,b[1]+ny),(b[0]-50-nx,b[1]-ny),(a[0]-50-nx,a[1]-ny)]
-  # Clockwise contours for TrueType; overlapping strokes share the same direction.
-  p.moveTo(pts[0]); [p.lineTo(t) for t in pts[1:]]; p.closePath()
- # Fill shared endpoints with true miter joins rather than exposed butt caps.
- vertices={}
- for a,b in lines:
-  vertices.setdefault(a,[]).append(b);vertices.setdefault(b,[]).append(a)
- for v,ends in vertices.items():
-  if len(ends)!=2:continue
-  # A junction on a through-stem needs no extra corner beyond the union.
-  if any(v!=a and v!=b and abs((v[0]-a[0])*(b[1]-a[1])-(v[1]-a[1])*(b[0]-a[0]))<1e-6 and min(a[0],b[0])<=v[0]<=max(a[0],b[0]) and min(a[1],b[1])<=v[1]<=max(a[1],b[1]) for a,b in lines):continue
-  rays=[]
-  for e in ends:
-   dx,dy=e[0]-v[0],e[1]-v[1];length=math.hypot(dx,dy);rays.append((dx/length,dy/length))
-  u,w=rays;cross=u[0]*w[1]-u[1]*w[0]
-  if abs(cross)<1e-6:continue
-  for side in [-1,1]:
-   a=(v[0]-side*u[1]*weight/2,v[1]+side*u[0]*weight/2)
-   b=(v[0]+side*w[1]*weight/2,v[1]-side*w[0]*weight/2)
-   delta=(b[0]-a[0],b[1]-a[1]);t=(delta[0]*w[1]-delta[1]*w[0])/cross
-   m=(a[0]+t*u[0],a[1]+t*u[1])
-   if math.hypot(m[0]-v[0],m[1]-v[1])>weight:m=v
-   pts=[v,a,m,b]
-   area=sum(pts[i][0]*pts[(i+1)%4][1]-pts[(i+1)%4][0]*pts[i][1] for i in range(4))
-   if area>0:pts.reverse()
-   p.moveTo((pts[0][0]-50,pts[0][1]))
-   for x,y in pts[1:]:p.lineTo((x-50,y))
+ if not lines:return p.glyph()
+ network=unary_union([LineString([(x-50,y) for x,y in (a,b)]) for a,b in lines])
+ if network.geom_type=='MultiLineString':network=linemerge(network)
+ # Round joins follow the motion of a pen through bends; union removes every seam.
+ outline=network.buffer(weight/2,cap_style='round',join_style='round',quad_segs=8)
+ polygons=[outline] if outline.geom_type=='Polygon' else list(outline.geoms)
+ for polygon in polygons:
+  polygon=orient(polygon,sign=-1)
+  for ring in [polygon.exterior,*polygon.interiors]:
+   pts=list(ring.coords)[:-1];p.moveTo(pts[0])
+   for pt in pts[1:]:p.lineTo(pt)
    p.closePath()
  return p.glyph()
 chars={' ':[],'.':[],'·':[],'•':[],**patterns,'᛫':[((300,355),(300,405))],'᛬':[((300,245),(300,295)),((300,465),(300,515))]}

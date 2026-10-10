@@ -29,7 +29,7 @@ patterns={
 'ᛇ':[S,((300,680),(120,570)),((300,80),(480,190))],
 'ᛈ':[S,((300,680),(500,520)),((500,520),(420,440)),((300,80),(500,240)),((500,240),(420,320))],
 'ᛉ':[S,((300,420),(90,650)),((300,420),(510,650))],
-'ᛋ':[((470,680),(180,380)),((180,380),(420,380)),((420,380),(130,80))],
+'ᛋ':[((300,680),(200,380)),((200,380),(400,380)),((400,380),(300,80))],
 'ᛏ':[S,((300,680),(90,460)),((300,680),(510,460))],
 'ᛒ':[S,((300,680),(500,530)),((500,530),(300,380)),((300,380),(500,230)),((500,230),(300,80))],
 'ᛖ':[((100,80),(100,680)),((500,80),(500,680)),((100,680),(300,420)),((300,420),(500,680))],
@@ -49,6 +49,31 @@ def glyph(lines,weight=60):
   pts=[(a[0]-50+nx,a[1]+ny),(b[0]-50+nx,b[1]+ny),(b[0]-50-nx,b[1]-ny),(a[0]-50-nx,a[1]-ny)]
   # Clockwise contours for TrueType; overlapping strokes share the same direction.
   p.moveTo(pts[0]); [p.lineTo(t) for t in pts[1:]]; p.closePath()
+ # Fill shared endpoints with true miter joins rather than exposed butt caps.
+ vertices={}
+ for a,b in lines:
+  vertices.setdefault(a,[]).append(b);vertices.setdefault(b,[]).append(a)
+ for v,ends in vertices.items():
+  if len(ends)!=2:continue
+  # A junction on a through-stem needs no extra corner beyond the union.
+  if any(v!=a and v!=b and abs((v[0]-a[0])*(b[1]-a[1])-(v[1]-a[1])*(b[0]-a[0]))<1e-6 and min(a[0],b[0])<=v[0]<=max(a[0],b[0]) and min(a[1],b[1])<=v[1]<=max(a[1],b[1]) for a,b in lines):continue
+  rays=[]
+  for e in ends:
+   dx,dy=e[0]-v[0],e[1]-v[1];length=math.hypot(dx,dy);rays.append((dx/length,dy/length))
+  u,w=rays;cross=u[0]*w[1]-u[1]*w[0]
+  if abs(cross)<1e-6:continue
+  for side in [-1,1]:
+   a=(v[0]-side*u[1]*weight/2,v[1]+side*u[0]*weight/2)
+   b=(v[0]+side*w[1]*weight/2,v[1]-side*w[0]*weight/2)
+   delta=(b[0]-a[0],b[1]-a[1]);t=(delta[0]*w[1]-delta[1]*w[0])/cross
+   m=(a[0]+t*u[0],a[1]+t*u[1])
+   if math.hypot(m[0]-v[0],m[1]-v[1])>weight:m=v
+   pts=[v,a,m,b]
+   area=sum(pts[i][0]*pts[(i+1)%4][1]-pts[(i+1)%4][0]*pts[i][1] for i in range(4))
+   if area>0:pts.reverse()
+   p.moveTo((pts[0][0]-50,pts[0][1]))
+   for x,y in pts[1:]:p.lineTo((x-50,y))
+   p.closePath()
  return p.glyph()
 chars={' ':[],'.':[],'·':[],'•':[],**patterns,'᛫':[((300,355),(300,405))],'᛬':[((300,245),(300,295)),((300,465),(300,515))]}
 def separator():

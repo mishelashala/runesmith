@@ -1,0 +1,7 @@
+*.test.js
+*.py
+font-proof.png
+index.html
+requirements.txt
+*.zip
+*.vsix

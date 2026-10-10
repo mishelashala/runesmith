@@ -1,0 +1,62 @@
+{
+  "name": "runesmith",
+  "displayName": "RuneSmith",
+  "description": "Offline phonemic English rune assistance and RuneSmith Mono font.",
+  "version": "0.1.0",
+  "publisher": "mishelashala",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mishelashala/runesmith.git"
+  },
+  "license": "UNLICENSED",
+  "scripts": {
+    "test": "node --test *.test.js",
+    "build:font": "python build_font.py",
+    "build:dictionary": "python build_dictionary.py",
+    "package": "npx @vscode/vsce package --skip-license"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "runesmith.insertCustomRune",
+        "title": "RuneSmith: Insert Custom Rune"
+      },
+      {
+        "command": "runesmith.transliterate",
+        "title": "RuneSmith: Insert English Word as Runes"
+      },
+      {
+        "command": "runesmith.openFont",
+        "title": "RuneSmith: Open Font for Installation"
+      }
+    ],
+    "configuration": {
+      "title": "RuneSmith",
+      "properties": {
+        "runesmith.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Check runic text in open files."
+        },
+        "runesmith.personalWords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Accepted runic spellings in your personal dictionary."
+        }
+      }
+    }
+  }
+}

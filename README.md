@@ -1,53 +1,69 @@
 # RuneSmith
 
-A runic editor font and VS Code writing assistant for Futhark and Anglo-Saxon Futhorc.
+RuneSmith Mono and a VS Code extension for modern English written phonemically with Anglo-Saxon runes. Version 0.1.0.
 
-**Status:** Planning. Created October 10, 2026.
+## Install
 
-## Motivation
+1. Install `RuneSmithMono-Regular.ttf` using your operating system's font installer.
+2. In VS Code, run **Extensions: Install from VSIX** and select `runesmith-0.1.0.vsix`.
+3. Add this to VS Code settings:
 
-The current appearance of Unicode runes in my editor is unsatisfactory. RuneSmith aims to make runic text comfortable to read, write, and check.
+```json
+{
+  "editor.fontFamily": "'RuneSmith Mono', 'Menlo', 'Consolas', monospace",
+  "editor.fontLigatures": false
+}
+```
 
-## 1. Editor font
+The font covers runes, two custom characters, runic punctuation, and spaces. Latin text and other punctuation use your fallback font. Restart VS Code after installing the font if necessary.
 
-Create attractive, legible Futhark glyphs mapped to existing Unicode runic characters.
+## Use
 
-- Consistent stroke weight, spacing, angles, and proportions.
-- Distinct rune shapes at normal editor sizes.
-- Editor-friendly metrics, ideally monospaced.
-- Reliable alignment and line height without clipping.
-- Preserve Unicode text so documents remain portable.
+- Hover over runic words for **all matching English words**, American pronunciations in IPA, and dictionary-style respelling. Hover also identifies the rune or sound sequence under the pointer.
+- Unknown words receive an informational underline. Use **Quick Fix** for ranked suggestions or to add a spelling to your personal dictionary. No automatic replacement occurs.
+- **RuneSmith: Insert English Word as Runes** looks up an English word and inserts a selected pronunciation as runes.
+- **RuneSmith: Insert Custom Rune** inserts V or voiced TH without requiring a special keyboard.
+- **RuneSmith: Open Font for Installation** opens the bundled font.
 
-Choose the initial Futhark variant and include the Anglo-Saxon Futhorc characters needed by the extension.
+Everything runs offline. No requests, telemetry, API keys, or credentials are used.
 
-## 2. VS Code rune assistant
+## Mapping decisions
 
-Provide spell checking for English written with Anglo-Saxon runes.
+Modern English only; American pronunciation from CMUdict; rune.school-inspired mapping; monospaced; no bind runes or ligature substitutions. Traditional shapes have modern sound assignments, not claims of historical orthography.
 
-- Recognize runic words.
-- Flag likely spelling or rune-selection mistakes.
-- Offer “Did you mean…?” correction suggestions.
-- Hover over a word to see its English spelling and pronunciation using Merriam-Webster-style notation.
+| Custom sound | Character | Design |
+|---|---|---|
+| /v/ | U+E000 | Feoh with two opposite-side branches (tree shape) |
+| /ð/ | U+E001 | Thorn with a crossbar |
 
-Example: hover over the runic equivalent of **show** to see **show** and its dictionary pronunciation.
+These Private Use characters require RuneSmith to render. /f/ uses ᚠ and /θ/ uses ᚦ. A sequence such as ᛋᚳ remains **two characters and two cells**.
 
-## Open decisions
+Canonical vowels: KIT ᛁ, DRESS ᛖ, TRAP ᚫ, PALM/LOT /ɑ/ ᚪ, THOUGHT /ɔ/ ᚩᚩ, FOOT ᚣ, STRUT ᚢ, schwa ᛟ, FLEECE ᛇ, GOOSE ᚣᚹ, FACE ᛖᛡ, GOAT ᚩᚹ, PRICE ᚫᛡ, MOUTH ᚫᚹ, CHOICE ᚩᛡ, NURSE ᚢᚱ, unstressed /ɚ/ ᛟᚱ. Stress affects schwa mapping but is not printed in runic text.
 
-- Modern English written in Futhorc, historical Old English, or separate modes? Modern English is the initial working assumption.
-- Which spelling or sound-to-rune conventions should be accepted?
-- How should ambiguous sequences and multiple candidate words appear?
-- Which dictionary and pronunciation source can be used, under what terms?
-- Is monospacing required, or should there also be a proportional version?
+Accepted compatibility spellings: ᛁᛡ → ᛇ, ᚫᚫ → ᚪ, ᛄ → ᛇ, ᛥ → ᛋᛏ, ᛢ → ᛣᚹ. The old shared F/V and TH spellings are not automatically converted: RuneSmith preserves the chosen phonemic contrasts.
 
-## Font quality checks
+## Current limits
 
-Verify Unicode coverage, font-table validity, glyph metrics, spacing, clipping, and rendering at several sizes. Inspect real words and paragraphs for optical consistency and distinguishability. Review the final appearance in the actual editor.
+- CMUdict has pronunciations, not definitions; short definitions are not bundled yet.
+- Respelling is inspired by familiar dictionary notation, **not official Merriam-Webster data**. Stress marks currently precede vowel phonemes rather than being fully syllabified.
+- This is a dictionary-driven prototype, not a grammar checker. Names and new words may need personal dictionary entries. CMUdict includes multiple American variants rather than one rigid accent.
+- Historical rune.school near/air shortcuts (ᛠᚱ, ᛁᛁᚱ, ᛖᛖᚱ) are not normalized yet. Standard phonemic forms generated from the dictionary work.
+- Suggestions rank rune edit distance, then deterministically by spelling; no usage-frequency ranking yet.
+- Font outlines are original geometric artwork. Small-size proofing has been performed, but the font is unhinted and should be reviewed on your actual display.
+- Automated provider tests use a VS Code API harness; an interactive installed-extension smoke test remains necessary.
 
-## Initial checklist
+## Develop
 
-- [ ] Choose the rune inventory and writing convention.
-- [ ] Collect examples of current rendering problems.
-- [ ] Design a contrasting set of glyphs and test real text.
-- [ ] Build and validate an installable font.
-- [ ] Prototype runic-word recognition and English-word hover.
-- [ ] Add correction suggestions after the mapping works reliably.
+Node 20+ and Python 3.12+. Runtime extension code has no third-party JavaScript dependencies.
+
+```sh
+npm test
+pip install -r requirements.txt
+npm run build:font
+npm run build:dictionary
+npm run package
+```
+
+`core.js` owns the mapping and dictionary index; `extension.js` integrates hover, diagnostics, Quick Fixes, and insertion commands. `build_font.py` builds reproducible TrueType outlines. `build_dictionary.py` bundles 125,938 CMUdict word entries and preserves its license.
+
+Sources: https://rune.school/learn/ and https://github.com/cmusphinx/cmudict . CMUdict redistribution notice is included in `CMUDICT-LICENSE.txt`.

@@ -29,7 +29,7 @@ patterns={
 'ᛇ':[S,((300,680),(120,570)),((300,80),(480,190))],
 'ᛈ':[S,((300,680),(500,520)),((500,520),(420,440)),((300,80),(500,240)),((500,240),(420,320))],
 'ᛉ':[S,((300,420),(90,650)),((300,420),(510,650))],
-'ᛋ':[((480,680),(160,480)),((160,480),(440,280)),((440,280),(120,80))],
+'ᛋ':[((470,680),(180,380)),((180,380),(420,380)),((420,380),(130,80))],
 'ᛏ':[S,((300,680),(90,460)),((300,680),(510,460))],
 'ᛒ':[S,((300,680),(500,530)),((500,530),(300,380)),((300,380),(500,230)),((500,230),(300,80))],
 'ᛖ':[((100,80),(100,680)),((500,80),(500,680)),((100,680),(300,420)),((300,420),(500,680))],
@@ -50,10 +50,16 @@ def glyph(lines,weight=60):
   # Clockwise contours for TrueType; overlapping strokes share the same direction.
   p.moveTo(pts[0]); [p.lineTo(t) for t in pts[1:]]; p.closePath()
  return p.glyph()
-chars={' ':[],'.':[((300,80),(300,124))],'·':[((300,358),(300,402))],**patterns,'᛫':[((300,355),(300,405))],'᛬':[((300,245),(300,295)),((300,465),(300,515))]}
+chars={' ':[],'.':[],'·':[],'•':[],**patterns,'᛫':[((300,355),(300,405))],'᛬':[((300,245),(300,295)),((300,465),(300,515))]}
+def separator():
+ p=TTGlyphPen(None);cx,cy,r=250,380,30
+ p.moveTo((cx+r,cy))
+ for i in range(1,24):
+  angle=-2*math.pi*i/24;p.lineTo((cx+r*math.cos(angle),cy+r*math.sin(angle)))
+ p.closePath();return p.glyph()
 names={c:'uni%04X'%ord(c) for c in chars}; order=['.notdef']+list(names.values())
 fb=FontBuilder(800,isTTF=True); fb.setupGlyphOrder(order); fb.setupCharacterMap({ord(c):n for c,n in names.items()})
-g={names[c]:glyph(v,44 if c in '.·᛫᛬' else 60) for c,v in chars.items()}; g['.notdef']=glyph([((100,80),(100,680)),((100,680),(500,680)),((500,680),(500,80)),((500,80),(100,80))])
+g={names[c]:separator() if c in '.·•᛫' else glyph(v,44 if c=='᛬' else 60) for c,v in chars.items()}; g['.notdef']=glyph([((100,80),(100,680)),((100,680),(500,680)),((500,680),(500,80)),((500,80),(100,80))])
 fb.setupGlyf(g); fb.setupHorizontalMetrics({n:(500,0) for n in order}); fb.setupHorizontalHeader(ascent=740,descent=-120)
 fb.setupNameTable({'familyName':'RuneSmith Mono','styleName':'Regular','uniqueFontIdentifier':'RuneSmithMono-0.1.0','fullName':'RuneSmith Mono Regular','psName':'RuneSmithMono-Regular','version':'Version 0.1.0','copyright':'Copyright (c) 2026 Michell Ayala','licenseDescription':ROOT.joinpath('LICENSE').read_text(),'licenseInfoURL':'https://github.com/mishelashala/runesmith/blob/main/LICENSE'})
 fb.setupOS2(sTypoAscender=740,sTypoDescender=-120,sTypoLineGap=0,usWinAscent=740,usWinDescent=120,fsSelection=0x40)

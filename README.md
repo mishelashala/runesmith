@@ -74,4 +74,6 @@ RuneSmith code and original font outlines are licensed under the [MIT License](L
 
 ## Notebook spacing
 
-The font uses tighter 500-unit monospace cells and stronger 60-unit strokes on an 800-unit em. Use a period (`.`) between words, as in handwritten notes; its dot is drawn near the baseline. Middle dot (`·`) and runic punctuation are also supported. Dots already split words for hover and spell checking. Ordinary spaces remain blank. The preview defaults to dot-separated samples.
+The font uses tighter 500-unit monospace cells and stronger 60-unit strokes on an 800-unit em. Use a period (`.`) between words, as in handwritten notes; its dot is drawn as a round bullet at the vertical center of the runes. Middle dot (`·`), bullet (`•`), and runic punctuation are also supported. Dots already split words for hover and spell checking. Ordinary spaces remain blank. The preview defaults to dot-separated samples.
+
+Sigel (`ᛋ`, /s/) uses an angular lightning-bolt silhouette.

@@ -9,3 +9,5 @@ test('token ranges handle PUA, punctuation, and emoji',()=>assert.deepEqual(c.to
 test('correction ranking finds an intended neighboring spelling',()=>{assert.ok(lex.suggest('ᛋᚳᚩᛡ').some(x=>x.runes==='ᛋᚳᚩᚹ'));});
 test('sequence hover resolves both cells',()=>{assert.equal(c.runeInfo('ᛋᚳᚩᚹ',1).sound,'/ʃ/');assert.equal(c.runeInfo('ᛋᚳᚩᚹ',3).sound,'/oʊ/');});
 test('every generated dictionary character has font coverage',()=>{const glyphs=require('./glyphs.json');for(const key of lex.index.keys())for(const ch of key)assert.ok(glyphs[ch],ch);});
+
+test('notebook dots separate words with exact editor ranges',()=>assert.deepEqual(c.tokens('ᚠᚫᚾ.\uE000ᚫᚾ·ᚦᛁᚾ'),[{text:'ᚠᚫᚾ',start:0,end:3},{text:'\uE000ᚫᚾ',start:4,end:7},{text:'ᚦᛁᚾ',start:8,end:11}]));

@@ -4,7 +4,7 @@ from fontTools.pens.ttGlyphPen import TTGlyphPen
 from pathlib import Path
 import math, json
 ROOT=Path(__file__).resolve().parent
-# Coordinates in a 600-unit cell, on an 800-unit em.
+# Design coordinates in a 600-unit cell; recentered into a tighter 500-unit monospace cell.
 S=((300,80),(300,680))
 patterns={
 'ᚠ':[S,((300,570),(510,680)),((300,390),(510,500))],
@@ -42,19 +42,19 @@ patterns={
 'ᛢ':[S,((300,680),(100,520)),((100,520),(300,360)),((300,680),(500,520)),((500,520),(300,360))],
 'ᛥ':[S,((100,530),(300,680)),((300,680),(500,530)),((100,270),(300,420)),((300,420),(500,270))],
 }
-def glyph(lines,weight=46):
+def glyph(lines,weight=60):
  p=TTGlyphPen(None)
  for a,b in lines:
   dx,dy=b[0]-a[0],b[1]-a[1]; length=math.hypot(dx,dy); nx,ny=-dy/length*weight/2,dx/length*weight/2
-  pts=[(a[0]+nx,a[1]+ny),(b[0]+nx,b[1]+ny),(b[0]-nx,b[1]-ny),(a[0]-nx,a[1]-ny)]
+  pts=[(a[0]-50+nx,a[1]+ny),(b[0]-50+nx,b[1]+ny),(b[0]-50-nx,b[1]-ny),(a[0]-50-nx,a[1]-ny)]
   # Clockwise contours for TrueType; overlapping strokes share the same direction.
   p.moveTo(pts[0]); [p.lineTo(t) for t in pts[1:]]; p.closePath()
  return p.glyph()
-chars={' ':[],**patterns,'᛫':[((300,355),(300,405))],'᛬':[((300,245),(300,295)),((300,465),(300,515))]}
+chars={' ':[],'.':[((300,80),(300,124))],'·':[((300,358),(300,402))],**patterns,'᛫':[((300,355),(300,405))],'᛬':[((300,245),(300,295)),((300,465),(300,515))]}
 names={c:'uni%04X'%ord(c) for c in chars}; order=['.notdef']+list(names.values())
 fb=FontBuilder(800,isTTF=True); fb.setupGlyphOrder(order); fb.setupCharacterMap({ord(c):n for c,n in names.items()})
-g={names[c]:glyph(v) for c,v in chars.items()}; g['.notdef']=glyph([((100,80),(100,680)),((100,680),(500,680)),((500,680),(500,80)),((500,80),(100,80))])
-fb.setupGlyf(g); fb.setupHorizontalMetrics({n:(600,0) for n in order}); fb.setupHorizontalHeader(ascent=740,descent=-120)
+g={names[c]:glyph(v,44 if c in '.·᛫᛬' else 60) for c,v in chars.items()}; g['.notdef']=glyph([((100,80),(100,680)),((100,680),(500,680)),((500,680),(500,80)),((500,80),(100,80))])
+fb.setupGlyf(g); fb.setupHorizontalMetrics({n:(500,0) for n in order}); fb.setupHorizontalHeader(ascent=740,descent=-120)
 fb.setupNameTable({'familyName':'RuneSmith Mono','styleName':'Regular','uniqueFontIdentifier':'RuneSmithMono-0.1.0','fullName':'RuneSmith Mono Regular','psName':'RuneSmithMono-Regular','version':'Version 0.1.0','copyright':'Copyright (c) 2026 Michell Ayala','licenseDescription':ROOT.joinpath('LICENSE').read_text(),'licenseInfoURL':'https://github.com/mishelashala/runesmith/blob/main/LICENSE'})
 fb.setupOS2(sTypoAscender=740,sTypoDescender=-120,sTypoLineGap=0,usWinAscent=740,usWinDescent=120,fsSelection=0x40)
 fb.setupPost(isFixedPitch=1); fb.setupMaxp(); fb.save(ROOT/'RuneSmithMono-Regular.ttf')

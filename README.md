@@ -71,3 +71,7 @@ Sources: https://rune.school/learn/ and https://github.com/cmusphinx/cmudict . C
 ## License
 
 RuneSmith code and original font outlines are licensed under the [MIT License](LICENSE). The bundled CMUdict data retains its separate redistribution terms in [CMUDICT-LICENSE.txt](CMUDICT-LICENSE.txt).
+
+## Notebook spacing
+
+The font uses tighter 500-unit monospace cells and stronger 60-unit strokes on an 800-unit em. Use a period (`.`) between words, as in handwritten notes; its dot is drawn near the baseline. Middle dot (`·`) and runic punctuation are also supported. Dots already split words for hover and spell checking. Ordinary spaces remain blank. The preview defaults to dot-separated samples.

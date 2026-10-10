@@ -67,3 +67,7 @@ npm run package
 `core.js` owns the mapping and dictionary index; `extension.js` integrates hover, diagnostics, Quick Fixes, and insertion commands. `build_font.py` builds reproducible TrueType outlines. `build_dictionary.py` bundles 125,938 CMUdict word entries and preserves its license.
 
 Sources: https://rune.school/learn/ and https://github.com/cmusphinx/cmudict . CMUdict redistribution notice is included in `CMUDICT-LICENSE.txt`.
+
+## License
+
+RuneSmith code and original font outlines are licensed under the [MIT License](LICENSE). The bundled CMUdict data retains its separate redistribution terms in [CMUDICT-LICENSE.txt](CMUDICT-LICENSE.txt).

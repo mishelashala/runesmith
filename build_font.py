@@ -55,7 +55,7 @@ names={c:'uni%04X'%ord(c) for c in chars}; order=['.notdef']+list(names.values()
 fb=FontBuilder(800,isTTF=True); fb.setupGlyphOrder(order); fb.setupCharacterMap({ord(c):n for c,n in names.items()})
 g={names[c]:glyph(v) for c,v in chars.items()}; g['.notdef']=glyph([((100,80),(100,680)),((100,680),(500,680)),((500,680),(500,80)),((500,80),(100,80))])
 fb.setupGlyf(g); fb.setupHorizontalMetrics({n:(600,0) for n in order}); fb.setupHorizontalHeader(ascent=740,descent=-120)
-fb.setupNameTable({'familyName':'RuneSmith Mono','styleName':'Regular','uniqueFontIdentifier':'RuneSmithMono-0.1.0','fullName':'RuneSmith Mono Regular','psName':'RuneSmithMono-Regular','version':'Version 0.1.0'})
+fb.setupNameTable({'familyName':'RuneSmith Mono','styleName':'Regular','uniqueFontIdentifier':'RuneSmithMono-0.1.0','fullName':'RuneSmith Mono Regular','psName':'RuneSmithMono-Regular','version':'Version 0.1.0','copyright':'Copyright (c) 2026 Michell Ayala','licenseDescription':ROOT.joinpath('LICENSE').read_text(),'licenseInfoURL':'https://github.com/mishelashala/runesmith/blob/main/LICENSE'})
 fb.setupOS2(sTypoAscender=740,sTypoDescender=-120,sTypoLineGap=0,usWinAscent=740,usWinDescent=120,fsSelection=0x40)
 fb.setupPost(isFixedPitch=1); fb.setupMaxp(); fb.save(ROOT/'RuneSmithMono-Regular.ttf')
 from fontTools.ttLib import TTFont
